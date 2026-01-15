@@ -1,0 +1,46 @@
+Project Dataverse
+
+Create a proejct directory:
+
+	mkdir dataverse
+
+Initialize Git:
+
+	git init .
+	git branch -M main
+	
+Create project structure:
+
+	\dataverse
+		\data
+			\raw
+			\processed
+			\warehouse
+		\src
+			\ingestion
+			\transformations
+			\quality
+			\models
+		\tests
+		\docs
+
+Goals:
+
+	- Data ingestion
+	- Transformations
+	- Data quality checks
+	- Analytical modeling
+	- SQL + Python + distributed data concepts
+	
+	- Clean, reproducible pipelines
+	- Strong data quality guarantees
+	- Scalable design for large datasets
+	
+Tech:
+
+	- Python
+	- SQL
+	- Polars (local analytics)
+	- Apache Spark (PySpark)
+	
+
