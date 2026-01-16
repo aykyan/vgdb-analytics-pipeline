@@ -389,3 +389,36 @@ Next, we will try to do write some queries for:
         FROM platform_year_counts;
 
 --------------------------------------------------------------------------------
+
+With above, we have successfully modeled data with explicit grain, built star
+schemas, used GROUP BY / HAVING correctly, understood JOIN semantics, and used
+window functions for ranking and trends.
+
+Now, it's time for some tests. Let's quickly commit everyhing done so far:
+
+	git add .
+	git status
+	git commit -m "..."
+
+Data tests answer the question "can we trust this table?". Core test types:
+
+	- Schema tests (columns exist, types are correct)
+	- Grain tests (one row per grain: e.g., game x platform)
+	- Nullability tests (required columns are never null)
+	- Referential integrity tests (foreign keys actually exist in dimensions)
+	
+To run the tests we will have to install pytest:
+
+	pip install pytest
+	
+and run it:
+
+	pytest src/tests
+
+After running the test for the first time, we have discovered that there is
+an issue with parsing delimiters: some of the entries contained an empty
+string, so after transformation, the list[str] produced an entry within the
+list which was empty. To fix this, I update the parse_delimited() function
+to include a line that filters out empty strings.
+
+All tests passed successfully, followed with a git commit.

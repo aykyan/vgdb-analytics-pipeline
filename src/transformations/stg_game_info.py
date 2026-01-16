@@ -45,9 +45,10 @@ def parse_delimited(col: str, delimiter: str = "||") -> pl.Expr:
 	return (
 		pl.when(pl.col(col).is_null() | (pl.col(col).str.strip_chars() == ""))
 		.then(pl.lit([])).otherwise(
-			pl.col(col).str.split(delimiter).list.eval(
-				pl.element().str.strip_chars()
-			)
+			pl.col(col)
+			.str.split(delimiter)
+			.list.eval(pl.element().str.strip_chars())
+			.list.filter(pl.element().str.len_chars() > 0)
 		)
 		.alias(col)
 	)
