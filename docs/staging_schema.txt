@@ -1,0 +1,4 @@
+Deduplication rule:
+
+	If multiple slugs exist for a game_id, the lexicographically smallest
+	slug is selected as canonical.

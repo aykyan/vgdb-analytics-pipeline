@@ -1,46 +1,391 @@
 Project Dataverse
 
-Create a proejct directory:
+Create project directory:
 
-	mkdir dataverse
+    mkdir dataverse
 
 Initialize Git:
 
-	git init .
-	git branch -M main
-	
+    git init .
+    git branch -M main
+    
 Create project structure:
 
-	\dataverse
-		\data
-			\raw
-			\processed
-			\warehouse
-		\src
-			\ingestion
-			\transformations
-			\quality
-			\models
-		\tests
-		\docs
+    \dataverse
+        \data
+            \raw
+            \processed
+            \warehouse
+        \src
+            \ingestion
+            \transformations
+            \quality
+            \models
+        \tests
+        \docs
 
+Basic definitions:
+
+    DataFrame        -- 2D tabular data structure for holding and manipulating
+                        data with named columns of equal-length Series.
+                        
+    Series           -- 1D array of homogeneous data type.
+    
+    Lazy Evaluation  -- a feature where operations build an optimized query
+                        plan without immediate execution, delaying computation
+                        until collect() or sink_*() is called for memory
+                        efficiency on large data.
+
+    Data ingestion   -- process of loading/reading data from external sources
+                        into DataFrames for processing.
+                        
+    Transformation   -- modifying, filtering, aggregating, reshaping DataFrames
+                        to prepare data for analysis.
+                        
+    Grain            -- unit of detail or row uniqueness in a dataset. Defines
+                        the most granular level at which data exists in
+                        DataFrame.
+                        
+                        - Typically set by primary key columns or unique
+                            combinations (e.g., user_id + transaction_date).
+                        - Check via df.is_unique() or df.n_unique() on
+                            suspected key columns to verify no duplicates at
+                            that level.
+                        - Guides joins and aggregations: transformations
+                            preserve or roll up from grain.
+                        - Ensures data quality post-ingestion: duplicates
+                            signal grain violations before analysis.
+                        
+First commit:
+
+    git add .
+    git commit -m "Initialize Dataverse project structure."
+
+        
 Goals:
 
-	- Data ingestion
-	- Transformations
-	- Data quality checks
-	- Analytical modeling
-	- SQL + Python + distributed data concepts
-	
-	- Clean, reproducible pipelines
-	- Strong data quality guarantees
-	- Scalable design for large datasets
-	
+    - Data ingestion
+    - Transformations
+    - Data quality checks
+    - Analytical modeling
+    - SQL + Python + distributed data concepts
+    
+    - Clean, reproducible pipelines
+    - Strong data quality guarantees
+    - Scalable design for large datasets
+    
 Tech:
 
-	- Python
-	- SQL
-	- Polars (local analytics)
-	- Apache Spark (PySpark)
-	
+    - Python
+    - SQL
+    - Polars (local analytics)
+    - Apache Spark (PySpark)
 
+--------------------------------------------------------------------------------
+
+For this project, I decided to use a dataset provided by VGDB that features a
+list of video game titles, including metadata such as the name, developers,
+publishers, genres, platforms, release date, ratings, etc.
+
+There are two files within this dataset:
+
+    game_id.csv      - contains IDs of games
+    game_info.csv    - contains all other data such as the ones listed above
+    
+A relevant Jupyter Notebook entry was created with basic view of the dataset
+using PySpark. I could use Polars or Pandas, because this is a simple local
+project that uses a ~100MB dataset (Spark is good for parallel processing of
+big data). In fact, we are going to stick to Polars from now on.
+
+As the first step, we will profile the raw data:
+
+    - load CSVs
+    - print schema, row counts, null percentages, duplicate IDs
+    - log findings
+
+Done. Run the script from the root of the project:  
+    
+    python src/ingestion/profile_vgdb.py
+
+Running this script, we have found that there are certain inconsistencies,
+such as duplicate IDs in game_id.csv, and IDs that are present in one file
+but are missing in another. Let's dissect the report:
+
+    game_id.csv (lines: 664949)
+    Shape:  (664948, 2)            -- number of entries, number of columns
+    Null count:  shape: (1, 2)
+    Sample rows: shape: (5, 2)
+    
+    game_info.csv (lines: 474420)
+    Shape:  (474417, 27)
+    Null count:  shape: (1, 27)
+    Sample rows: shape: (5, 27)
+
+The metacritic column has a lot of null values. We are going to leave it
+as it is, instead of filling with 0s (that would mean "bad score").
+
+It seems like there are no other issues. There could've been an issue
+with type mismatch, but there were none detected. We should never rely
+on schema inference for production ingestion. We could explicitly specify
+the schema when loading the csv:
+
+    game_id_schema = { "id": pl.Int64, "slug": pl.Utf8 }
+    
+    game_id_df = pl.read_csv { GAME_ID_PATH, schema=game_id_schema}
+    
+There are some functions that Polars offers that we could use:
+
+    df.describe()    -- generates summary (mean, std, min, max, nulls)
+    df.shape         -- returns a tiple of (rows, columns)
+    df.height        -- gives the number of rows
+    df.width         -- gives the number of columns
+    
+    select(pl.col("*").n_unique())          -- counts distinct values per column
+    select(pl.col(pl.NUMERIC_DTYPES).sum()) -- computes sums for numeric columns
+    
+Our second step is designing a staging schema. We will:
+
+    - read CSVs
+    - enforce schema
+    - rename columns
+    - run basic quality checks
+    - write a Parquet staging table
+    
+Done. Created stg_game_identity.py:
+
+    python src/transformations/stg_game_identity.py
+
+    - Explicit schema enforcement works
+    - Deduplication logic is correct
+    - Data quality checks passed
+    - We now have a clean one-row-per-game identity table
+
+Now, we will build stg_game_info.py, which will include:
+
+    - ID reconciliation with identity table
+    - Date parsing
+    - Nullable metrics
+    - Array parsing
+    - Explicit failure handling for bad rows
+
+Done. Created stg_game_info.py:
+
+    python src/transformations/stg_game_info.py
+    
+We have implemented a clean, defensible staging layer: we ingested raw CSVs,
+explicitly defined schemas, profiled data, detected broken assumptions,
+canonicalized identifiers deterministically, enforced data quality, and
+written typed Parquet staging tables.
+
+For the next step, we will do analytics modeling. This includes:
+
+    - SQL-style modeling
+    - Joins
+    - GROUP BY / HAVING
+    - Window functions
+    - CTE-style logic
+    - Data intuition
+
+Let's look at basic definitions:
+
+    - Joins - combine rows from two or more tables based on related columns
+            - INNER JOIN: return only matching rows from both tables
+            - LEFT JOIN:  all rows from left table + matching right table rows
+            - RIGHT JOIN: all rows from right table + matching left table rows
+            - FULL OUTER JOIN: all rows from both tables (NULLs if no match)
+            
+            Normalize databases by splitting data into related tables, then
+            reconstruct for queries like sales reports (orders + products +
+            customers).
+            
+            df.join(other_df, on="customer_id", how="left") # SQL LEFT JOIN
+    
+    - GROUP BY    - groups rows with identical values in specified columns
+                    into summary rows, typically paired with aggregate
+                    functions like COUNT, SUM, AVG, MIN, MAX.
+                    
+    - HAVING      - filters those grouped results based on aggregate conditions
+                    (e.g., groups where total > 1000), since WHERE can't
+                    reference aggregates.
+                    
+                    SELECT department, COUNT(*) as emp_count, AVG(salary)
+                    FROM employees
+                    GROUP BY department
+                    HAVING COUNT(*) > 5 AND AVG(salary) > 50000;
+                    
+                    df.group_by("department").agg([
+                        pl.col("employee_id").count().alias("emp_count"),
+                        pl.col("salary").mean()
+                    ]).filter(
+                        pl.col("emp_count") > 5  &
+                        pl.col("salary").mean() > 50000
+                    )
+                    
+                    WHERE  - filters individual rows before grouping
+                    HAVING - filters groups after
+
+    - Window functions    - perform calculations across a set of rows (called
+                            a "window") related to the current row, without
+                            collapsing the result set like GROUP BY does.
+                            
+                            Enable advanced analytics like rankings, running
+                            totals, moving averages, and comparisons to other
+                            rows (e.g., previous/next sales) while preserving
+                            all original rows.
+                            
+                            <function>() OVER (
+                                [PARTITION BY column1] -- groups rows
+                                [ORDER BY column2] -- orders within partitions
+                                [ROWS/RANGE frame] -- optional window bounds
+                            )
+                            
+                            Main categories:
+                            
+                                Ranking: assign positions
+                                    ROW_NUMBER(), RANK(), DENSE_RANK()
+                                Aggregate: over windows (running totals)
+                                    SUM(), AVG(), COUNT()
+                                Value: peek previous/next rows
+                                    LAG()/LEAD(), FIRST_VALUE()/LAST_VALUE()
+                                Offset:
+                                    NTH_VALUE()
+                                    
+                            df.with_columns([
+                                pl.col("salary")
+                                .rank("dense")
+                                .over("department")
+                                .alias("rank"),
+                                
+                                pl.col("sales")
+                                .sum()
+                                .over("product")
+                                .alias("running_total")
+                            ])
+            
+    - CTE - (Common Table Expression) defines a temporary named result set
+            within a single SQL query using the WITH clause, improving
+            readability for complex logic.
+
+            Breaks multi-level subqueries into named, reusable blocks,
+            avoiding nested parentheses and repetition -- especially
+            useful for chains of joins, aggregations, or window functions.
+            
+                WITH sales_by_region AS (
+                    SELECT region, SUM(amount) as total_sales
+                    FROM orders
+                    GROUP BY region
+                )
+            
+                SELECT * FROM sales_by_region
+                WHERE total_sales > 100000;
+            
+            intermediate = df.group_by("region").agg(
+                pl.col("amount").sum().alias("total_sales")
+            )
+            
+            result = intermediate.filter(pl.col("total_sales") > 100000)
+            
+            
+    - Fact tables - store quantitative, measurable business events (e.g.,
+                    sales amount, order quantity, click counts) with foreign
+                    keys linking to dimensions.
+                    
+    - Dimension tables    - provide descriptive context (who, what, where,
+                            when) like customer details, product info, dates.
+            
+            
+                    Fact Table (center):
+                    
+                        sales_amount, units_sold, customer_id, product_id
+                        
+                    Dimension Tables:
+                    
+                        customers, products, dates (surrounding)
+            
+                        
+                    # Quantitative measures
+                    fact_df = pl.read_parquet("sales.parquet")
+                    
+                    # Descriptive attributes
+                    dim_df  = pl.read_parquet("customers.parquet")
+
+
+We will now create dim_platform.py. Done:
+
+    python src/analytics/dim_platform.py
+
+and fact_game_metrics.py, where the grain is game x platform, which means:
+
+    - One game can appear multiple times
+    - Once per platform it is available on
+
+Done:
+
+    python src/analytics/fact_game_metrics.py
+    
+This resulted in row count > games count, because there are now
+multiple platforms, i.e. each game title is listed as many times as
+there are platforms it supports. There are also clean joins and no
+null platform_id.
+
+With this, we now have a proper star schema, joinable dimensions,
+and a fact table suitable for analytics.
+
+Next, we will try to do write some queries for:
+
+    - (GROUP BY)   which platforms have at least 5,000 games
+    
+        SELECT
+            p.platform_name,
+            COUNT(*) AS game_count
+        FROM fact_game_metrics f
+        JOIN dim_platform p
+            ON f.platform_id = p.platform_id
+        GROUP BY p.platform_name
+        HAVING COUNT(*) >= 5000
+        ORDER BY game_count DESC;
+
+    - (LEFT JOIN)  only games that have platforms
+    
+        SELECT g.game_id, g.name, f.platform_id
+        FROM stg_game_info g
+        LEFT JOIN fact_game_metrics f
+            ON g.game_id = f.game_id;
+
+    - (FULL JOIN)  combine everything, even unmatched rows
+    
+        SELECT *
+        FROM stg_game_identity i
+        FULL JOIN stg_game_info g
+            ON i.game_id = g.game_id;
+
+    
+    - (ROW_NUMBER) top 3 games per platform by rating
+
+        SELECT *
+        FROM (
+            SELECT
+                f.*,
+                g.name,
+                ROW_NUMBER() OVER (
+                    PARTITION BY platform_id
+                    ORDER BY rating DESC
+                ) AS row_number
+            FROM fact_game_metrics f
+            JOIN stg_game_info g
+                ON f.game_id = g.game_id
+        ) ranked
+        WHERE row_number <= 3;
+
+    - (RANK)       handle ties correctly    
+    
+    - (LAG)        release trend per platform
+    
+        SELECT *,
+           LAG(games_released) OVER (
+               PARTITION BY platform_id
+               ORDER BY year
+           ) AS prev_year
+        FROM platform_year_counts;
+
+--------------------------------------------------------------------------------
