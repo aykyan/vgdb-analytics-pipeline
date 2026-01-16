@@ -1,8 +1,10 @@
 import polars as pl
 from pathlib import Path
 
-GAME_ID_PATH   = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\warehouse\\vgdb\\game_id.csv")
-GAME_INFO_PATH = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\warehouse\\vgdb\\game_info.csv")
+VGDB_DIR = Path("data/warehouse/vgdb")
+
+GAME_ID_PATH   = VGDB_DIR / "game_id.csv"
+GAME_INFO_PATH = VGDB_DIR / "game_info.csv"
 
 def profile_dataframe(df: pl.DataFrame, name: str) -> None:
 	"""Print basic profiling information for a DataFrame."""

@@ -1,11 +1,11 @@
 import polars as pl
 from pathlib import Path
 
-STAGING_DIR   = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\staging")
-ANALYTICS_DIR = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\analytics")
+STAGING_DIR   = Path("data/processed/staging")
+ANALYTICS_DIR = Path("data/processed/analytics")
 
-STG_GAME_INFO_PATH = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\staging\\stg_game_info.parquet")
-DIM_PLATFORM_PATH  = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\analytics\\dim_platform.parquet")
+STG_GAME_INFO_PATH = STAGING_DIR / "stg_game_info.parquet"
+DIM_PLATFORM_PATH  = ANALYTICS_DIR / "dim_platform.parquet"
 
 def build_dim_platform() -> pl.DataFrame:
 	"""

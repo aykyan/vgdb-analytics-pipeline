@@ -1,10 +1,10 @@
 import polars as pl
 from pathlib import Path
 
-STAGING_DIR = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\staging")
+STAGING_DIR   = Path("data/processed/staging")
 
-RAW_GAME_ID_PATH = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\warehouse\\vgdb\\game_id.csv")
-STG_GAME_ID_PATH = Path("C:\\Users\\Jien\\Desktop\\dataverse\\data\\processed\\staging\\stg_game_identity.parquet")
+RAW_GAME_ID_PATH = Path("data/warehouse/vgdb/game_id.csv")
+STG_GAME_ID_PATH = STAGING_DIR / "stg_game_identity.parquet"
 
 GAME_ID_SCHEMA = {
 	"id":   pl.Int64,
