@@ -80,6 +80,10 @@ Tech:
     - SQL
     - Polars (local analytics)
     - Apache Spark (PySpark)
+    
+    - Pandas
+    - Matplotlib
+    - Seaborn
 
 --------------------------------------------------------------------------------
 
@@ -396,24 +400,24 @@ window functions for ranking and trends.
 
 Now, it's time for some tests. Let's quickly commit everyhing done so far:
 
-	git add .
-	git status
-	git commit -m "..."
+    git add .
+    git status
+    git commit -m "..."
 
 Data tests answer the question "can we trust this table?". Core test types:
 
-	- Schema tests (columns exist, types are correct)
-	- Grain tests (one row per grain: e.g., game x platform)
-	- Nullability tests (required columns are never null)
-	- Referential integrity tests (foreign keys actually exist in dimensions)
-	
+    - Schema tests (columns exist, types are correct)
+    - Grain tests (one row per grain: e.g., game x platform)
+    - Nullability tests (required columns are never null)
+    - Referential integrity tests (foreign keys actually exist in dimensions)
+    
 To run the tests we will have to install pytest:
 
-	pip install pytest
-	
+    pip install pytest
+    
 and run it:
 
-	pytest src/tests
+    pytest src/tests
 
 After running the test for the first time, we have discovered that there is
 an issue with parsing delimiters: some of the entries contained an empty
@@ -422,3 +426,50 @@ list which was empty. To fix this, I update the parse_delimited() function
 to include a line that filters out empty strings.
 
 All tests passed successfully, followed with a git commit.
+
+--------------------------------------------------------------------------------
+
+I have added BI models that reside in the "\models" directory. We will use them
+for data visualization.
+
+The first issue I ran into was when I visualized some data using bar charts,
+specifically showing how many games of which platform have been released in
+each year. The issue was that the chart showed that there were iOS games
+released in 1980s and 1990s, which is historically impossible. But that's not
+an error in the dataset -- it's a semantic issue: there was an assumption that
+'released_date' applies to each platform, but it could be that even though
+DOOM was released in 1995, it was later ported to iOS, so the bar chart assumes
+that since DOOM also exists on the iOS platform but was originally released in
+1995, then it also counts as an iOS game released in 1995, and that's exactly
+what the chart shows.
+
+This is one of the reasons why it's also important to design the dataset in a
+way that reflects such intricate details -- it would've been much better if the
+data included things like platform exclusivity, game's budget (e.g., AAA vs
+Indie), and the release date for each platform.
+
+The best thing that we can do is to define the year of platform's launch, and
+build the chart based on the years from that new platform-year mapping, which
+will ensure that there are no games included in the chart which were released
+before the platform's launch. But this is not going to be the ground truth,
+which is not good since we should always aim for precision when doing data
+analysis. Therefore, we will leave this as is; if it's possible, we could find
+a better dataset that is more detailed, or a dataset that includes such data
+that can be appended to our dataset.
+
+--------------------------------------------------------------------------------
+
+In conclusion, the dataset showed that most of the games were not of the PC
+platform (PC: 43.2%), and that 17.4% of all games were Web, 10.6% of iOS.
+
+For me, this dataset contains too many titles that are not interesting. It's
+good to have as many titles as possible, from all kinds of platforms, but
+through data analysis we have found out that this dataset is missing tens or
+hundreds of thousands of games released in 1970s, 1980s, 1990s on various
+platforms; MS-DOS alone has tens of thousands of games which are not present
+in this dataset.
+
+A perfect dataset would be the one provided by MobyGames, but that is beyond
+our goal in this project. We have successfully ingested, staged, and transformed
+our data to make it production-ready for our analysis purposes. We can now use
+tools like Apache Spark if we want to scale and work with big data.
