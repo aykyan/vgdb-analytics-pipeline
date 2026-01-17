@@ -494,3 +494,31 @@ After that, to push from local repo to remote, simply type:
 
     git push
 
+--------------------------------------------------------------------------------
+
+We will now wrap and orchestrate what we have built using MS Azure -- a cloud
+computing platform. Its role is storage, scheduling, orchestration, environment
+consistency, and observability.
+
+	Raw Data        -> Azure Blob Storage
+	Staging         -> Azure Data Lake / Parquet
+	Transformations -> Python jobs
+	Orchestration   -> Azure Data Factory / Azure ML / Azure Batch
+	BI / Access     -> Synapse / Power BI / Notebooks
+
+Our job is to map each existing pipeline step to an Azure service and define
+inputs/outputs; then, make code cloud-ready: parametrize paths, add entrypoints,
+make jobs idempotent; finally, we will choose one orchestration service, for
+which the best options are:
+
+	- Azure Data Factory (ADF)                     -> orchestration
+	- Azure Blob Storage / ADLS Gen2               -> storage
+	- Azure Container Instance (ACI) / Azure Batch -> compute
+
+I have created a new directory in \docs\azure, where I will document the
+mappings, as well as other things that are related to Azure integration.
+
+In order to "use" the Azure, we have to make the existing code cloud-compatible,
+package it as jobs, give Azure something to run (containers), and tell Azure
+when and in what order to run them.
+

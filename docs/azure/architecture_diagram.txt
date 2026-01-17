@@ -1,0 +1,37 @@
+            +------------------+
+            |   Data Source    |
+            |  (VGDB CSVs)     |
+            +--------+---------+
+                     |
+                     v
+        +----------------------------+
+        | Azure Blob Storage (Raw)   |
+        |  vgdb-raw                  |
+        |  - game_id.csv             |
+        |  - game_info.csv           |
+        +-------------+--------------+
+                      |
+            (Orchestrated by ADF)
+                      |
+                      v
+        +----------------------------+
+        | Azure Container Instances  |
+        | (Python / Polars Jobs)     |
+        +-------------+--------------+
+                      |
+                      v
+        +----------------------------+
+        | Azure Data Lake Gen2       |
+        | (Parquet, layered storage) |
+        |                            |
+        |  vgdb-staging              |
+        |  vgdb-dim                  |
+        |  vgdb-fact                 |
+        |  vgdb-analytics            |
+        +-------------+--------------+
+                      |
+                      v
+        +----------------------------+
+        | Analytics & BI Consumers   |
+        | (Notebooks / Power BI)     |
+        +----------------------------+

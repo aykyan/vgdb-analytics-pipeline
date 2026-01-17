@@ -1,0 +1,58 @@
+Azure Storage Mapping
+
+This project is designed to map cleanly onto Azure-native storage layers.
+
+_________
+RAW LAYER
+
+- Source: Local CSV files (game_id.csv, game_info.csv)
+- Azure Service: Azure Blob Storage
+- Container: vgdb-raw
+- Format: CSV
+- Access Pattern: read-only ingestion
+
+_____________
+STAGING LAYER
+
+- Azure Service: Azure Data Lake Storage (ADLS) Gen2
+- Container: vgdb-staging
+- Format: Parquet
+- Contents:
+    - stg_game_identity.parquet
+    - stg_game_info.parquet
+
+_______________
+WAREHOUSE LAYER
+
+ADLS Gen2 or Azure Synapse
+
+- Container: warehouse
+- Format: Parquet
+- Tables:
+    - Dimensions
+    - Facts
+
+    DIMENSIONS
+    - Azure Service: ADLS Gen2
+    - Container: vgdb-dim
+    - Format: Parquet
+    - Contents:
+        - dim_platform.parquet
+    
+    FACTS
+    - Azure Service: ADLS Gen2
+    - Container: vgdb-fact
+    - Format: Parquet
+    - Contents:
+        - fact_game_metrics.parquet
+   
+_____________________
+ANALYTICS / BI MODELS
+
+- Azure Service: ADLS Gen2
+- Container: vgdb-analytics
+- Format: Parquet
+- Contents:
+    - m_games_by_platform.parquet
+    - m_genre_summary.parquet
+    - m_top_rated_games.parquet

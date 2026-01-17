@@ -1,0 +1,60 @@
+
+ETL Orchestration on Azure
+
+_______________
+PIPELINE DESIGN
+
+Step 1: Ingest Raw Data
+
+- Service: Azure Data Factory (ADF)
+- Trigger: manual or scheduled
+- Activity: copy activity
+- Source: external CSV
+- Sink: Azure Blob Storage [vgdb-raw]
+
+Step 2: Staging Transformations
+
+- Service: Azure Container Instances
+- Job:
+    - stg_game_identity.py
+    - stg_game_info.py
+- Input: vgdb-raw CSV
+- Output: vgdb-staging Parquet
+
+Step 3: Dimension Build
+
+- Service: Azure Container Instances
+- Job:
+    - dim_platform.py
+- Input: stg_game_info.parquet
+- Output: dim_platform.parquet
+
+Step 4: Fact Build
+
+- Service: Azure Container Instances
+- Job:
+    - fact_game_metrics.py
+- Input:
+    - stg_game_info.parquet
+    - dim_platform.parquet
+- Output:
+    - fact_game_metrics.parquet
+
+Step 5: Analytics Models
+
+- Service: Azure Container Instances
+- Job:
+    - m_games_by_platform.py
+- Input:
+    - fact_game_metrics.parquet
+- Output:
+    - BI-ready Parquet models
+
+Step 6: Validation & Monitoring
+
+- Service: Azure Data Factory
+- Checks
+    - Row counts
+    - Schema validation
+    - Pipeline success/failure alerts
+
