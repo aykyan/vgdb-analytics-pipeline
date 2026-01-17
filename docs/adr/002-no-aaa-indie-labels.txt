@@ -1,0 +1,38 @@
+
+ADR 002: The Dataset Avoids AAA / Indie Classification
+
+______
+STATUS
+
+Accepted
+
+_______
+CONTEXT
+
+The VGDB dataset does not provide reliable indicators of production
+budget, studio size, marketing spend, or distribution scale.
+
+Applying AAA or Indie labels would require subjective heuristics or
+external enrichment not present in the source data.
+
+________
+DECISION
+
+The project does not classify games as "AAA" or "Indie".
+
+Instead, defensible derived signals are used, such as:
+
+- Platform count
+- Platform exclusivity
+- Presence on major platforms
+
+These signals are explicitly defined and explainable.
+
+____________
+CONSEQUENCES
+
+- Analysis avoids subjective or misleading categorization
+- Derived metrics remain transparent and reproducible
+- Consumers of the data are encouraged to draw informed conclusions
+	rather than rely on opaque labels
+

@@ -1,6 +1,6 @@
 # VGDB Analytics Pipeline
 
-End-to-end data analyrics project using:
+End-to-end data analytics project using:
 
 - Polars
 - Parquet

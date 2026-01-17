@@ -1,0 +1,37 @@
+
+ADR 001: Release Date Semantics Are Game-Level, Not Platform-Level
+
+______
+STATUS
+
+Accepted
+
+_______
+CONTEXT
+
+The VGDB dataset provides a single 'released_date' per game while also
+listing multiple platforms per game. When modeling facts at the game x
+platform grain, this creates an apparent platform release timeline.
+
+Exploratory analysis revealed historically impossible results (e.g.,
+iOS games appearing in the 1980s and 1990s), indicating a semnatic
+mismatch rather than a data processing error.
+
+________
+DECISION
+
+'eleased_date' is treated as a game-level attribute only.
+
+When joined to platform-level facts, the date represents the game's
+initial public release, not the availability date on each platform.
+
+Platform-level temporal analysis must either:
+- Apply platform launch-year constraints, or
+- Explicitly disclose that dates are game-level only.
+
+____________
+CONSEQUENCES
+
+- Platform timelines without correction are analytically misleading
+- Corrected analytics models require additional reference data
+- Visualizations must document assumptions to prevent misinterpretation

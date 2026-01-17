@@ -80,8 +80,7 @@ Tech:
     - SQL
     - Polars (local analytics)
     - Apache Spark (PySpark)
-    
-    - Pandas
+
     - Matplotlib
     - Seaborn
 
@@ -481,13 +480,17 @@ empty repository (without a license, readme, etc., so then later we won't have
 conflicts when pushing). Then, we will check the status of our local repo, add
 new files to the commit if necessary, add remote origin, verify, and push.
 
-	git status
-	git add .
-	git commit -m "..."
-	
-	git remote add origin "https://github.com/user/vgdb-analytics-pipeline.git"
-	git remote -v
-	
-	git branch -M main
-	git push -u origin main
-	
+    git status
+    git add .
+    git commit -m "..."
+    
+    git remote add origin "https://github.com/user/vgdb-analytics-pipeline.git"
+    git remote -v
+    
+    git branch -M main
+    git push -u origin main
+    
+After that, to push from local repo to remote, simply type:
+
+    git push
+

@@ -1,0 +1,34 @@
+
+ADR 003: Use Polars Instead of Pandas
+
+______
+STATUS
+
+Accepted
+
+_______
+CONTEXT
+
+The VGDB dataset is approximately 100 MB and contains large array-like
+fields requiring explosion and aggregation.
+
+Pandas would require higher memory overhead and less explicit schema
+handling for this workload.
+
+________
+DECISION
+
+Polars is used as the primary data processing engine.
+
+Key reasons:
+- Explicit schemas
+- Efficient columnar execution
+- Clear distinction between expressions and execution
+- Native Parquet support
+
+____________
+CONSEQUENCES
+
+- Some APIs differ from Pandas and require learning investment
+- Visualization requires conversion to Python-native structures
+- The pipeline is more scalable and closer to production data engines
