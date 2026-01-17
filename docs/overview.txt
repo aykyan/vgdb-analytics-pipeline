@@ -473,3 +473,21 @@ A perfect dataset would be the one provided by MobyGames, but that is beyond
 our goal in this project. We have successfully ingested, staged, and transformed
 our data to make it production-ready for our analysis purposes. We can now use
 tools like Apache Spark if we want to scale and work with big data.
+
+--------------------------------------------------------------------------------
+
+Let's now push the files to our github repository. First, we have to create an
+empty repository (without a license, readme, etc., so then later we won't have
+conflicts when pushing). Then, we will check the status of our local repo, add
+new files to the commit if necessary, add remote origin, verify, and push.
+
+	git status
+	git add .
+	git commit -m "..."
+	
+	git remote add origin "https://github.com/user/vgdb-analytics-pipeline.git"
+	git remote -v
+	
+	git branch -M main
+	git push -u origin main
+	
