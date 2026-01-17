@@ -1,7 +1,14 @@
 __pycache__/
 .venv/
 .env
+.ipynb_checkpoints/
+.env
+.parquet
+.parquet/
+*.parquet
+*.csv
 data/raw/*
 data/processed/*
 data/warehouse/*
+docs/notebook/*
 !.gitkeep
