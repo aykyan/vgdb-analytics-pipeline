@@ -1,7 +1,7 @@
 import polars as pl
 from pathlib import Path
 
-STAGING_DIR   = Path("data/processed/staging")
+STAGING_DIR      = Path("data/processed/staging")
 
 RAW_GAME_ID_PATH = Path("data/warehouse/vgdb/game_id.csv")
 STG_GAME_ID_PATH = STAGING_DIR / "stg_game_identity.parquet"

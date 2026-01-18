@@ -522,3 +522,9 @@ In order to "use" the Azure, we have to make the existing code cloud-compatible,
 package it as jobs, give Azure something to run (containers), and tell Azure
 when and in what order to run them.
 
+Instead of running an actual Azure instance, we will first try to make our
+existing files cloud-ready. For example, I created a "cr" version of the
+'stg_game_info.py' script -- 'cr_stg_game_info.py', whose paths are specified
+as an environment variable; a relevant batch script was also created to run
+'cr_*.py' scripts (which produce cr_*.parquet files accordingly).
+
