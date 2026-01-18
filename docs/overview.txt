@@ -55,7 +55,23 @@ Basic definitions:
                             preserve or roll up from grain.
                         - Ensures data quality post-ingestion: duplicates
                             signal grain violations before analysis.
-                        
+
+    Explode          -- transformation operation that unpacks or flattens
+                        nested data structures, such as arrays, lists, or maps,
+                        into separate rows or records.
+
+                        This process expands a single row containing multiple
+                        values into multiple rows, one for each element in the
+                        nested structure.
+
+                        Used to normalize data for analysis, joins, streaming.
+
+                        df.explode('column') -> transforms a list column into
+                                                rows.
+
+                        id: 1, items: ['a', 'b'] -> id: 1, item: 'a'
+                                                    id: 1, item: 'b'
+
 First commit:
 
     git add .
@@ -500,20 +516,20 @@ We will now wrap and orchestrate what we have built using MS Azure -- a cloud
 computing platform. Its role is storage, scheduling, orchestration, environment
 consistency, and observability.
 
-	Raw Data        -> Azure Blob Storage
-	Staging         -> Azure Data Lake / Parquet
-	Transformations -> Python jobs
-	Orchestration   -> Azure Data Factory / Azure ML / Azure Batch
-	BI / Access     -> Synapse / Power BI / Notebooks
+    Raw Data        -> Azure Blob Storage
+    Staging         -> Azure Data Lake / Parquet
+    Transformations -> Python jobs
+    Orchestration   -> Azure Data Factory / Azure ML / Azure Batch
+    BI / Access     -> Synapse / Power BI / Notebooks
 
 Our job is to map each existing pipeline step to an Azure service and define
 inputs/outputs; then, make code cloud-ready: parametrize paths, add entrypoints,
 make jobs idempotent; finally, we will choose one orchestration service, for
 which the best options are:
 
-	- Azure Data Factory (ADF)                     -> orchestration
-	- Azure Blob Storage / ADLS Gen2               -> storage
-	- Azure Container Instance (ACI) / Azure Batch -> compute
+    - Azure Data Factory (ADF)                     -> orchestration
+    - Azure Blob Storage / ADLS Gen2               -> storage
+    - Azure Container Instance (ACI) / Azure Batch -> compute
 
 I have created a new directory in \docs\azure, where I will document the
 mappings, as well as other things that are related to Azure integration.
