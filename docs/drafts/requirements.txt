@@ -1,0 +1,5 @@
+polars
+matplotlib
+seaborn
+azure-storage-blob
+pyspark
