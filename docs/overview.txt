@@ -76,7 +76,6 @@ First commit:
 
     git add .
     git commit -m "Initialize Dataverse project structure."
-
         
 Goals:
 
@@ -99,6 +98,16 @@ Tech:
 
     - Matplotlib
     - Seaborn
+
+Data Quality Checks:
+
+    - Detect null / missing values
+    - Detect empty strings / whitespace-only values
+    - Detect and remove duplicates
+    - Detect partial records (start date without end date)
+    - Enforce data types and schema constraints
+    - Standardize formats for dates, text, numbers, addresses
+    - Standardize column names (snake case)
 
 --------------------------------------------------------------------------------
 

@@ -1,0 +1,43 @@
+Tools to consider:
+
+    dlt
+    https://github.com/dlt-hub/dlt
+    
+    databricks
+    https://www.databricks.com/
+    
+    snowflake
+    https://www.snowflake.com/en/
+    
+    airflow
+    https://airflow.apache.org/
+    
+    dbt
+    https://github.com/dbt-labs/dbt-core
+
+Datasets:
+
+    https://www.kaggle.com/datasets/atalaydenknalbant/rawg-games-dataset
+    
+    https://www.kaggle.com/datasets/fronkongames/steam-games-dataset
+    https://huggingface.co/datasets/FronkonGames/steam-games-dataset
+    
+    https://github.com/leomaurodesenv/game-datasets
+    
+Learn:
+
+    https://github.com/PacktPublishing/Data-Engineering-with-Python
+    
+    https://github.com/gunnarmorling/awesome-opensource-data-engineering
+    
+    https://github.com/OBenner/data-engineering-interview-questions
+    
+    https://github.com/data-engineering-community/data-engineering-wiki
+    
+    https://github.com/oleg-agapov/data-engineering-book
+    
+    https://github.com/DataTalksClub/data-engineering-zoomcamp
+    
+    https://github.com/igorbarinov/awesome-data-engineering
+    
+    https://github.com/andkret/Cookbook
