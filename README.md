@@ -31,6 +31,8 @@ The datasets are excluded from this repository, but you can download them and pl
             \vgdb           -- Contains raw .csv datasets
 ```
 
+### Overview
+
 | Layer      | Artifact                 | Description                                      |
 |------------|--------------------------|--------------------------------------------------|
 | Raw        | game_id.csv              | Raw game identifiers and slugs                   |
@@ -46,7 +48,7 @@ The main purpose of this project is to learn everything related to data engineer
 
 - Basic (or, perhaps, advanced) analysis of the processed data
 - Visualizations (diagrams, charts, tables)
-- Expanding the warehouse with more datasets to work with Big Data
+- Expanding the warehouse with more/heavier datasets to work with Big Data
 - Utilizing Big Data tools (Apache Hadoop/Spark/Kafka, MS Azure)
 - ...or, at least, documenting them
 - Utilizing Machine Learning Python libraries
