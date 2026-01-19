@@ -52,3 +52,5 @@ The main purpose of this project is to learn everything related to data engineer
 - Utilizing Big Data tools (Apache Hadoop/Spark/Kafka, MS Azure)
 - ...or, at least, documenting them
 - Utilizing Machine Learning Python libraries
+
+![tool logos](./docs/gallery/tool_logos.png)
