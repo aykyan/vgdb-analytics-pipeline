@@ -27,8 +27,12 @@ The datasets are excluded from this repository, but you can download them and pl
             \analytics
                 \models
             \staging
+        \raw                -- Contains raw .csv datasets
+        	\vgdb
         \warehouse
-            \vgdb           -- Contains raw .csv datasets
+            \bronze         -- For raw data ingestion
+            \silver         -- For cleaned and validated data
+            \gold           -- For dimensional modeling and aggregation
 ```
 
 ### Overview
