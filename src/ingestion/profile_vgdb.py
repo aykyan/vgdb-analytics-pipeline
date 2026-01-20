@@ -1,7 +1,15 @@
+
+import os
 import polars as pl
 from pathlib import Path
 
-VGDB_DIR = Path("data/warehouse/vgdb")
+def get_env_var(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+VGDB_DIR       = Path(get_env_var("RAW_PATH"))
 
 GAME_ID_PATH   = VGDB_DIR / "game_id.csv"
 GAME_INFO_PATH = VGDB_DIR / "game_info.csv"

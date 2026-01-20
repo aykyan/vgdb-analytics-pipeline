@@ -1,42 +1,70 @@
+
+import os
 import polars as pl
 from pathlib import Path
 
-STAGING_DIR   = Path("data/processed/staging")
-ANALYTICS_DIR = Path("data/processed/analytics")
+def get_env_var(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
 
-STG_GAME_INFO_PATH = STAGING_DIR / "stg_game_info.parquet"
-DIM_PLATFORM_PATH  = ANALYTICS_DIR / "dim_platform.parquet"
+def build_dim_platform():
+    # ------------------------------------------------------------------
+    # Configuration
+    # ------------------------------------------------------------------
+    staging_path   = Path(get_env_var("STAGING_PATH"))
+    analytics_path = Path(get_env_var("ANALYTICS_PATH"))
 
-def build_dim_platform() -> pl.DataFrame:
-	"""
-	Build platform dimension table.
-	
-	Grain: one row per platform.
-	"""
-	
-	df = pl.read_parquet(STG_GAME_INFO_PATH)
-	
-	platforms = (
-		df.select(pl.col("platforms"))
-		.explode("platforms")
-		.filter(pl.col("platforms") != "")
-		.unique()
-		.sort("platforms")
-		.with_row_index("platform_id", offset=1)
-		.rename({"platforms": "platform_name"})
-	)
-	
-	return platforms
+    input_file   = staging_path / "stg_game_info.parquet"
+    output_file  = analytics_path / "dim_platform.parquet"
 
-def main() -> None:
-	ANALYTICS_DIR.mkdir(parents=True, exist_ok=True)
-	
-	df = build_dim_platform()
-	
-	df.write_parquet(DIM_PLATFORM_PATH)
-	
-	print(f"dim_platform written to {DIM_PLATFORM_PATH}")
-	print(df.head(10))
-	
+    analytics_path.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Read staged data
+    # ------------------------------------------------------------------
+    df = pl.read_parquet(input_file)
+
+    # ------------------------------------------------------------------
+    # Extract and canonicalize platforms
+    # ------------------------------------------------------------------
+    platforms = (
+        df
+        .select(pl.col("platforms"))
+        .explode("platforms")
+        .filter(pl.col("platforms").is_not_null())
+        .with_columns(
+            pl.col("platforms")
+              .str.strip_chars()
+              .str.to_lowercase()
+              .alias("platform_name")
+        )
+        .select("platform_name")
+        .unique()
+        .sort("platform_name")
+    )
+
+    # ------------------------------------------------------------------
+    # Generate deterministic surrogate keys
+    # ------------------------------------------------------------------
+    platforms = platforms.with_row_index(
+        name="platform_id",
+        offset=1
+    )
+
+    # ------------------------------------------------------------------
+    # Write dimension
+    # ------------------------------------------------------------------
+    platforms.write_parquet(output_file)
+
+    print(f"[SUCCESS] Wrote dim_platform to {output_file}")
+    print(f"[INFO] Platform count: {platforms.height}")
+
+
+def main():
+    build_dim_platform()
+
+
 if __name__ == "__main__":
-	main()
+    main()

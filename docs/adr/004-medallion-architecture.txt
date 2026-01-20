@@ -1,0 +1,33 @@
+
+ADR 004: Medallion Architecture
+
+______
+STATUS
+
+Accepted
+
+_______
+CONTEXT
+
+Current project directory is designed with no prior knowledge of data
+engineering best practices. It assumed, for example, that \warehouse is a
+directory for storing raw data from external sources (in our case, raw csv
+datasets). This is wrong.
+
+The accepted definition of a warehouse is that it's for storing final, query-
+optimized datasets post-transformation, acting as the project's analytical
+output. ETL scripts are directed to load there. This structure also supports
+medallion architecture (raw -> refined -> aggregated).
+
+________
+DECISION
+
+Restructure the directory to follow the medallion architecture design pattern.
+
+Fix paths in every file.
+
+____________
+CONSEQUENCES
+
+- Data logically organized in a lakehouse
+- Incrementally and progressively improved structure and quality of data

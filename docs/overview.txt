@@ -14,8 +14,14 @@ Create project structure:
     \dataverse
         \data
             \raw
+                \vgdb
             \processed
+                \analytics
+                \staging
             \warehouse
+                \bronze
+                \silver
+                \gold
         \src
             \ingestion
             \transformations
@@ -553,3 +559,17 @@ existing files cloud-ready. For example, I created a "cr" version of the
 as an environment variable; a relevant batch script was also created to run
 'cr_*.py' scripts (which produce cr_*.parquet files accordingly).
 
+--------------------------------------------------------------------------------
+
+After refactoring, I merged 'cr_*' files with "regular" ones and fixed paths. I
+have learned that there is a design pattern called "Medallion Architecture"[*],
+which I am going to use to comply with industry-level standards and practices.
+
+[*] Medallion Architecture -- Databricks
+    https://www.databricks.com/glossary/medallion-architecture
+
+    What is the medallion lakehouse architecture? -- Microsoft
+    https://learn.microsoft.com/en-us/azure/databricks/lakehouse/medallion
+
+    Deep dive into raw layer and bronze(ingestion layers) -- u/ThatJoeInLnd
+    https://www.reddit.com/r/dataengineering/comments/og41o9/comment/h4go9fr/

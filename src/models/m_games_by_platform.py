@@ -1,10 +1,17 @@
 
 # Show total games, average rating, and total owners per platform
 
+import os
 import polars as pl
 from pathlib import Path
 
-ANALYTICS_DIR = Path("data/processed/analytics")
+def get_env_var(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+ANALYTICS_DIR = Path(get_env_var("ANALYTICS_PATH"))
 
 FACT_GAME_METRICS_PATH   = ANALYTICS_DIR / "fact_game_metrics.parquet"
 DIM_PLATFORM_PATH        = ANALYTICS_DIR / "dim_platform.parquet"

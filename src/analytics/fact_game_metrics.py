@@ -1,85 +1,93 @@
+
+import os
 import polars as pl
 from pathlib import Path
 
-STAGING_DIR   = Path("data/processed/staging")
-ANALYTICS_DIR = Path("data/processed/analytics")
+def get_env_var(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
 
-STG_GAME_INFO_PATH = STAGING_DIR / "stg_game_info.parquet"
-DIM_PLATFORM_PATH  = ANALYTICS_DIR / "dim_platform.parquet"
+def build_fact_game_metrics():
+    # ------------------------------------------------------------------
+    # Configuration
+    # ------------------------------------------------------------------
+    staging_path   = Path(get_env_var("STAGING_PATH"))
+    analytics_path = Path(get_env_var("ANALYTICS_PATH"))
 
-FACT_GAME_METRICS_PATH = ANALYTICS_DIR / "fact_game_metrics.parquet"
+    stg_file          = staging_path / "stg_game_info.parquet"
+    dim_platform_file = analytics_path / "dim_platform.parquet"
+    output_file       = analytics_path / "fact_game_metrics.parquet"
 
-def build_fact_game_metrics() -> pl.DataFrame:
-	"""
-	Build fact table at grain: game x platform.
-	"""
-	
-	games     = pl.read_parquet(STG_GAME_INFO_PATH)
-	platforms = pl.read_parquet(DIM_PLATFORM_PATH)
-	
-	fact = (
-		games
-		.select([
-			"game_id",
+    analytics_path.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Read inputs
+    # ------------------------------------------------------------------
+    games     = pl.read_parquet(stg_file)
+    platforms = pl.read_parquet(dim_platform_file)
+
+    # ------------------------------------------------------------------
+    # Explode game-platform relationships
+    # ------------------------------------------------------------------
+    exploded = (
+        games
+        .select([
+            "game_id",
             "released_date",
             "rating",
-            "metacritic_score",
             "ratings_count",
             "reviews_count",
             "added_status_owned",
             "added_status_playing",
             "platforms",
-		])
-		.explode("platforms")
-		.rename({"platforms": "platform_name"})
-		.join(
-			platforms,
-			on="platform_name",
-			how="inner"
-		)
-		.select([
-			"game_id",
+        ])
+        .explode("platforms")
+        .filter(pl.col("platforms").is_not_null())
+        .with_columns(
+            pl.col("platforms")
+              .str.strip_chars()
+              .str.to_lowercase()
+              .alias("platform_name")
+        )
+        .drop("platforms")
+    )
+
+    # ------------------------------------------------------------------
+    # Join to platform dimension
+    # ------------------------------------------------------------------
+    fact = (
+        exploded
+        .join(
+            platforms,
+            on="platform_name",
+            how="inner"
+        )
+        .select([
+            "game_id",
             "platform_id",
             "released_date",
             "rating",
-            "metacritic_score",
             "ratings_count",
             "reviews_count",
             "added_status_owned",
             "added_status_playing",
-		])
-	)
-	
-	return fact
-	
-def main() -> None:
-	ANALYTICS_DIR.mkdir(parents=True, exist_ok=True)
-	
-	df = build_fact_game_metrics()
-	
-	df.write_parquet(FACT_GAME_METRICS_PATH)
-	
-	print(f"fact_game_metrics written to {FACT_GAME_METRICS_PATH}")
-	
-	print(df.head(10))
-	
-	games = pl.read_parquet(STG_GAME_INFO_PATH).select(["game_id", "name"])
-	
-	platforms = pl.read_parquet(DIM_PLATFORM_PATH)
-	
-	pretty = (
-		df
-		.join(games,     on="game_id",     how="left")
-		.join(platforms, on="platform_id", how="left")
-		.select([
-			"game_id",
-			"name",
-			"platform_name",
-		])
-		.head(20)
-	)
-	
-	print(f"\nReadable sample (game x platform):\n{pretty}")
-	
+        ])
+    )
+
+    # ------------------------------------------------------------------
+    # Write fact table
+    # ------------------------------------------------------------------
+    fact.write_parquet(output_file)
+
+    print(f"[SUCCESS] Wrote fact_game_metrics to {output_file}")
+    print(f"[INFO] Row count: {fact.height}")
+
+
+def main():
+    build_fact_game_metrics()
+
+
 if __name__ == "__main__":
-	main()
+    main()
