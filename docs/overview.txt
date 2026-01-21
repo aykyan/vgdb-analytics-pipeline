@@ -78,6 +78,15 @@ Basic definitions:
                         id: 1, items: ['a', 'b'] -> id: 1, item: 'a'
                                                     id: 1, item: 'b'
 
+                                                    
+    BI               -- (Business Intelligence) refers to the strategies,
+                        technologies, and processes organizations used to
+                        analyze data. It transforms raw data into
+                        understandable formats (reports, dashboards,
+                        visualizations) to support business operations.
+                        
+                        Tools: Tableau, Power BI, and Apache Superset.
+                                                    
 First commit:
 
     git add .

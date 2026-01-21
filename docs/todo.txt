@@ -15,6 +15,9 @@ Tools to consider:
     dbt
     https://github.com/dbt-labs/dbt-core
 
+    superset
+    https://github.com/apache/superset
+    
 Datasets:
 
     https://www.kaggle.com/datasets/atalaydenknalbant/rawg-games-dataset

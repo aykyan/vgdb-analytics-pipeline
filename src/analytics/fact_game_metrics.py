@@ -64,10 +64,17 @@ def build_fact_game_metrics():
             on="platform_name",
             how="inner"
         )
+        .with_columns(
+        	pl.col("released_date")
+        	.dt.year()
+        	.alias("release_year")
+        )
+        .filter(pl.col("release_year") <= 2022)
         .select([
             "game_id",
             "platform_id",
             "released_date",
+            "release_year",
             "rating",
             "ratings_count",
             "reviews_count",
