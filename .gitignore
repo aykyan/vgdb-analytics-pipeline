@@ -10,5 +10,4 @@ __pycache__/
 data/raw/*
 data/processed/*
 data/warehouse/*
-docs/notebook/*
 !.gitkeep
