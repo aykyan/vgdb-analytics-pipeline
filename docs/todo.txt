@@ -17,7 +17,11 @@ Tools to consider:
 
     superset
     https://github.com/apache/superset
-    
+
+Types of charts:
+
+    https://www.datylon.com/blog/types-of-charts-graphs-examples-data-visualization
+
 Datasets:
 
     https://www.kaggle.com/datasets/atalaydenknalbant/rawg-games-dataset

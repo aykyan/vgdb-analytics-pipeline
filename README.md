@@ -46,6 +46,8 @@ The datasets are excluded from this repository, but you can download them and pl
 | Dimension  | dim_platform             | Unique platforms with surrogate keys             |
 | Fact       | fact_game_metrics        | Game metrics at (game, platform) grain           |
 
+![statistics](./docs/gallery/stats.png)
+
 ### Goals
 
 The main purpose of this project is to learn everything related to data engineering and analytics by using raw real-world data and making it production-ready. The learning steps are documented in the `docs/overview.txt` file, including project's structure, tools used and basic definitions. Additionally, we would want to have:

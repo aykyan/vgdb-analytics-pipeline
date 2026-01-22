@@ -20,12 +20,13 @@ M_GENRE_SUMMARY_PATH = ANALYTICS_DIR / "models/m_genre_summary.parquet"
 stg = pl.read_parquet(STG_GAME_INFO_PATH)
 
 model = (
-	stg.explode("genres")
-       .group_by("genres")
-       .agg([
-           pl.count("game_id").alias("total_games"),
-           pl.mean("rating").alias("avg_rating")
-       ])
+	stg.explode("genres")    
+    .filter(pl.col("genres").is_not_null())
+    .group_by("genres")
+    .agg([
+        pl.count("game_id").alias("total_games"),
+        pl.mean("rating").alias("avg_rating")
+    ])
 )
 
 model.write_parquet(M_GENRE_SUMMARY_PATH)
